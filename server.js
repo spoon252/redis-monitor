@@ -2,9 +2,22 @@ const createError = require('http-errors');
 let express = require('express'),
     path = require('path'),
     cors = require('cors')
-
-//const deviceRoute = require('./routes/device.routes')
 const app = express();
+const httpServer = require('http').createServer(app);
+const io = require('socket.io')(httpServer, {
+    cors: {origin : '*'}
+  });
+const socketService = require('./services/socket.service')
+socketService.startSocketService(io);
+
+const port = process.env.PORT || 3080;
+const deviceRoute = require('./routes/redis.routes')
+
+httpServer.listen(port, function() {
+   console.log('listening on:',port);
+});
+
+
 app.use(express.json());
 app.use(express.urlencoded({
     extended: false
@@ -12,17 +25,10 @@ app.use(express.urlencoded({
 app.use(cors());
 
 // Static directory path
-app.use(express.static(path.join(__dirname, 'dist/redis-monitor')));
+app.use(express.static(path.join(__dirname, 'RedisMonitor/dist/redis-monitor')));
 
 // API root
-//app.use('/devices', deviceRoute);
-
-// PORT
-const port = process.env.PORT || 3080;
-
-app.listen(port, () => {
-    console.log('Listening on port ' + port)
-})
+app.use('/devices', deviceRoute);
 
 // 404 Handler
 app.use((req, res, next) => {
@@ -31,11 +37,15 @@ app.use((req, res, next) => {
 
 // Base Route
 app.get('/', (req, res) => {
-    res.send('invaild endpoint');
+    console.log("/")
+    res.send("sent from /")
+    //res.send('invaild endpoint');
 });
 
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'dist/ClientApp/index.html'));
+    console.log("*")
+    res.send("sent from *")
+    res.sendFile(path.join(__dirname, 'RedisMonitor/dist/redis-monitor'));
 });
 
 // error handler

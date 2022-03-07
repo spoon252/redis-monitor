@@ -1,0 +1,17 @@
+li {
+    display: inline;
+    padding: 3px;
+}
+
+ul {
+    margin: 0px;
+}
+
+nav {
+    background-color: darkslategray;
+}
+
+a {
+    color: white;
+    text-decoration: none;
+}
